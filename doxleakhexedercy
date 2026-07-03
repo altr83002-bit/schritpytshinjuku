@@ -1,0 +1,82 @@
+-- EmorceWare Key System
+print("EmorceWare Key System Loaded")
+local key = ""
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ErcyWare"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 320, 0, 180)
+Frame.Position = UDim2.new(0.5, -160, 0.5, -90)
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Frame.BorderSizePixel = 0
+Frame.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = Frame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.BackgroundTransparency = 1
+Title.Text = "EMORCEWARE"
+Title.TextColor3 = Color3.fromRGB(255, 0, 0)
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
+Title.Parent = Frame
+
+local Input = Instance.new("TextBox")
+Input.Size = UDim2.new(0.9, 0, 0, 40)
+Input.Position = UDim2.new(0.05, 0, 0.45, 0)
+Input.PlaceholderText = "Enter Key Here"
+Input.Text = ""
+Input.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Input.TextColor3 = Color3.fromRGB(255, 255, 255)
+Input.Font = Enum.Font.Gotham
+Input.TextScaled = true
+Input.Parent = Frame
+
+local UICorner2 = Instance.new("UICorner")
+UICorner2.CornerRadius = UDim.new(0, 8)
+UICorner2.Parent = Input
+
+local Submit = Instance.new("TextButton")
+Submit.Size = UDim2.new(0.9, 0, 0, 40)
+Submit.Position = UDim2.new(0.05, 0, 0.75, 0)
+Submit.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+Submit.Text = "SUBMIT"
+Submit.TextColor3 = Color3.fromRGB(255, 255, 255)
+Submit.TextScaled = true
+Submit.Font = Enum.Font.GothamBold
+Submit.Parent = Frame
+
+local UICorner3 = Instance.new("UICorner")
+UICorner3.CornerRadius = UDim.new(0, 8)
+UICorner3.Parent = Submit
+
+Submit.MouseButton1Click:Connect(function()
+	if Input.Text == "demorce22" then
+		Submit.Text = "imfaded..."
+		Submit.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+		
+		-- All requested scripts
+		pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/altr83002-bit/schritpytshinjuku/refs/heads/main/vampware%20aimlock.txt"))() end)
+		pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/altr83002-bit/schritpytshinjuku/refs/heads/main/message%20(48).txt"))() end)
+		pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/altr83002-bit/schritpytshinjuku/refs/heads/main/message%20(47).txt"))() end)
+		pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/altr83002-bit/schritpytshinjuku/refs/heads/main/West-Bound.txt"))() end)
+		pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/altr83002-bit/schritpytshinjuku/refs/heads/main/message%20(45).txt"))() end)
+		pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/altr83002-bit/schritpytshinjuku/refs/heads/main/xd.txt"))() end)
+		
+		wait(1)
+		ScreenGui:Destroy()
+	else
+		Submit.Text = "INVALID KEY"
+		Submit.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+		wait(1.5)
+		Submit.Text = "SUBMIT"
+		Submit.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+	end
+end)
+
+print("EmorceWare Key System Ready - Key: demorce22")
