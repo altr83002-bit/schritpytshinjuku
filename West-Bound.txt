@@ -1,0 +1,140 @@
+-- Shinjuku 1988 - Inventory ESP (Clean - White Text)
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+
+getgenv().InvESP = {
+    Enabled = true,
+    TextSize = 13,
+    Color = Color3.fromRGB(255, 255, 255)  -- White
+}
+
+local ESP_Drawings = {}
+local importantWeapons = {"nambu", "howa", "p9", "mp5", "mossberg", "fishing rod"}  -- Katana removed
+
+local function GetPlayerInventory(player)
+    local items = {}
+    if not player.Character then return items end
+
+    -- Equipped Tools
+    for _, tool in ipairs(player.Character:GetChildren()) do
+        if tool:IsA("Tool") then
+            local nameLower = tool.Name:lower()
+            for _, w in ipairs(importantWeapons) do
+                if nameLower:find(w) then
+                    table.insert(items, tool.Name)
+                    break
+                end
+            end
+        end
+    end
+
+    -- Inventory Slots
+    local inventory = player:FindFirstChild("Inventory")
+    if inventory then
+        for _, slot in ipairs(inventory:GetChildren()) do
+            if slot.Name:find("Slot") then
+                for _, tool in ipairs(slot:GetChildren()) do
+                    if tool:IsA("Tool") then
+                        local nameLower = tool.Name:lower()
+                        for _, w in ipairs(importantWeapons) do
+                            if nameLower:find(w) then
+                                table.insert(items, tool.Name)
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Remove duplicates
+    local unique = {}
+    for _, v in ipairs(items) do
+        unique[v] = true
+    end
+    local final = {}
+    for k in pairs(unique) do
+        table.insert(final, k)
+    end
+
+    return final
+end
+
+local function RemoveESP(playerName)
+    if ESP_Drawings[playerName] then
+        ESP_Drawings[playerName]:Remove()
+        ESP_Drawings[playerName] = nil
+    end
+end
+
+local function UpdateInventoryESP()
+    if not getgenv().InvESP.Enabled then
+        for _, drawing in pairs(ESP_Drawings) do
+            drawing.Visible = false
+        end
+        return
+    end
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player == LocalPlayer then continue end
+
+        local character = player.Character
+        if not character or not character:FindFirstChild("HumanoidRootPart") then
+            RemoveESP(player.Name)
+            continue
+        end
+
+        local items = GetPlayerInventory(player)
+        if #items == 0 then
+            RemoveESP(player.Name)
+            continue
+        end
+
+        local root = character.HumanoidRootPart
+        local screen, onScreen = Camera:WorldToViewportPoint(root.Position + Vector3.new(0, 3.5, 0))
+
+        if not onScreen then
+            RemoveESP(player.Name)
+            continue
+        end
+
+        if not ESP_Drawings[player.Name] then
+            local esp = Drawing.new("Text")
+            esp.Color = getgenv().InvESP.Color
+            esp.Outline = true
+            esp.Center = true
+            esp.Size = getgenv().InvESP.TextSize
+            ESP_Drawings[player.Name] = esp
+        end
+
+        local esp = ESP_Drawings[player.Name]
+        esp.Text = table.concat(items, "\n")
+        esp.Position = Vector2.new(screen.X, screen.Y)
+        esp.Visible = true
+    end
+end
+
+Players.PlayerRemoving:Connect(RemoveESP)
+
+RunService.Heartbeat:Connect(function()
+    for playerName in pairs(ESP_Drawings) do
+        local player = Players:FindFirstChild(playerName)
+        if not player or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
+            RemoveESP(playerName)
+        end
+    end
+end)
+
+RunService.RenderStepped:Connect(UpdateInventoryESP)
+
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.F4 then
+        getgenv().InvESP.Enabled = not getgenv().InvESP.Enabled
+        print("Inventory ESP:", getgenv().InvESP.Enabled and "ON" or "OFF")
+    end
+end)
+
+print("✅ Clean White Inventory ESP Loaded | Press F4 to toggle")
