@@ -1,0 +1,295 @@
+-- DEMORCE KEY SYSTEM V2 - PURPLE FIRE EDITION (Image Fixed)
+-- Paste this entire script into your executor
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
+
+local player = Players.LocalPlayer
+local keySystem = Instance.new("ScreenGui")
+keySystem.Name = "DemorceKeySystemV2"
+keySystem.ResetOnSpawn = false
+keySystem.Parent = player:WaitForChild("PlayerGui")
+
+-- Download and load image using getcustomasset
+local imageUrl = "https://i.pinimg.com/736x/42/de/d5/42ded506cb69f48fad09de00cdf3e54f.jpg"
+local imagePath = "demorce_splash.png"
+
+local success = pcall(function()
+    local response = game:HttpGet(imageUrl)
+    writefile(imagePath, response)
+end)
+
+if not success then
+    warn("Failed to download splash image")
+end
+
+-- Splash Image Popup
+local splashFrame = Instance.new("Frame")
+splashFrame.Size = UDim2.new(0, 500, 0, 500)
+splashFrame.Position = UDim2.new(0.5, -250, 0.5, -250)
+splashFrame.BackgroundTransparency = 1
+splashFrame.Parent = keySystem
+
+local splashImage = Instance.new("ImageLabel")
+splashImage.Size = UDim2.new(1, 0, 1, 0)
+splashImage.BackgroundTransparency = 1
+splashImage.Parent = splashFrame
+
+if isfile(imagePath) then
+    local asset = getsynasset and getsynasset(imagePath) or getcustomasset(imagePath)
+    if asset then
+        splashImage.Image = asset
+    end
+end
+
+local splashCorner = Instance.new("UICorner")
+splashCorner.CornerRadius = UDim.new(0, 20)
+splashCorner.Parent = splashFrame
+
+-- Fade in splash
+splashFrame.BackgroundTransparency = 1
+splashImage.ImageTransparency = 1
+TweenService:Create(splashFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.3}):Play()
+TweenService:Create(splashImage, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {ImageTransparency = 0}):Play()
+
+task.wait(2.5)
+
+-- Fade out splash
+TweenService:Create(splashImage, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+TweenService:Create(splashFrame, TweenInfo.new(1, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+
+task.wait(1.2)
+splashFrame:Destroy()
+
+-- Main Frame (Purple Theme)
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 420, 0, 320)
+mainFrame.Position = UDim2.new(0.5, -210, 0.5, -160)
+mainFrame.BackgroundColor3 = Color3.fromRGB(18, 15, 35)
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = keySystem
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 16)
+mainCorner.Parent = mainFrame
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Color3.fromRGB(180, 80, 255)
+mainStroke.Thickness = 2.5
+mainStroke.Parent = mainFrame
+
+-- Gradient Background
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 35, 70)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 15, 40))
+}
+gradient.Rotation = 135
+gradient.Parent = mainFrame
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 60)
+title.BackgroundTransparency = 1
+title.Text = "DEMORCE"
+title.TextColor3 = Color3.fromRGB(200, 120, 255)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBlack
+title.Parent = mainFrame
+
+local subtitle = Instance.new("TextLabel")
+subtitle.Size = UDim2.new(1, 0, 0, 30)
+subtitle.Position = UDim2.new(0, 0, 0, 55)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "KEY SYSTEM v2 • PURPLE"
+subtitle.TextColor3 = Color3.fromRGB(180, 160, 220)
+subtitle.TextScaled = true
+subtitle.Font = Enum.Font.Gotham
+subtitle.Parent = mainFrame
+
+-- Key Input
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(0.85, 0, 0, 55)
+keyBox.Position = UDim2.new(0.075, 0, 0.38, 0)
+keyBox.PlaceholderText = "ENTER KEY..."
+keyBox.Text = ""
+keyBox.BackgroundColor3 = Color3.fromRGB(30, 25, 50)
+keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyBox.Font = Enum.Font.GothamSemibold
+keyBox.TextScaled = true
+keyBox.ClearTextOnFocus = true
+keyBox.Parent = mainFrame
+
+local boxCorner = Instance.new("UICorner")
+boxCorner.CornerRadius = UDim.new(0, 12)
+boxCorner.Parent = keyBox
+
+local boxStroke = Instance.new("UIStroke")
+boxStroke.Color = Color3.fromRGB(120, 80, 180)
+boxStroke.Thickness = 1.5
+boxStroke.Parent = keyBox
+
+-- Submit Button
+local submitBtn = Instance.new("TextButton")
+submitBtn.Size = UDim2.new(0.85, 0, 0, 55)
+submitBtn.Position = UDim2.new(0.075, 0, 0.62, 0)
+submitBtn.BackgroundColor3 = Color3.fromRGB(160, 80, 255)
+submitBtn.Text = "UNLOCK SCRIPTS"
+submitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+submitBtn.TextScaled = true
+submitBtn.Font = Enum.Font.GothamBold
+submitBtn.Parent = mainFrame
+
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 12)
+btnCorner.Parent = submitBtn
+
+local btnStroke = Instance.new("UIStroke")
+btnStroke.Color = Color3.fromRGB(200, 140, 255)
+btnStroke.Thickness = 2
+btnStroke.Parent = submitBtn
+
+-- Status Label
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, 0, 0, 30)
+status.Position = UDim2.new(0, 0, 0.85, 0)
+status.BackgroundTransparency = 1
+status.Text = ""
+status.TextColor3 = Color3.fromRGB(160, 255, 180)
+status.TextScaled = true
+status.Font = Enum.Font.Gotham
+status.Parent = mainFrame
+
+-- Valid Keys
+local validKeys = {
+    "nyx2026", "altr83002", "gravvedkey", "freekey123", "testkey",
+    "demorce22", "firekey", "nyxpremium", "v2key", "22special", "demorce"
+}
+
+-- Animations
+local function playHover(btn)
+    TweenService:Create(btn, TweenInfo.new(0.2, Enum.EasingStyle.Quint), {Size = UDim2.new(0.88, 0, 0, 58)}):Play()
+end
+
+local function playUnhover(btn)
+    TweenService:Create(btn, TweenInfo.new(0.2, Enum.EasingStyle.Quint), {Size = UDim2.new(0.85, 0, 0, 55)}):Play()
+end
+
+submitBtn.MouseEnter:Connect(function() playHover(submitBtn) end)
+submitBtn.MouseLeave:Connect(function() playUnhover(submitBtn) end)
+
+keyBox.Focused:Connect(function()
+    TweenService:Create(keyBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(50, 40, 80)}):Play()
+    TweenService:Create(boxStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(200, 140, 255)}):Play()
+end)
+
+keyBox.FocusLost:Connect(function()
+    TweenService:Create(keyBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(30, 25, 50)}):Play()
+    TweenService:Create(boxStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(120, 80, 180)}):Play()
+end)
+
+-- Floating Particles (Purple)
+local particles = {}
+for i = 1, 25 do
+    local particle = Instance.new("Frame")
+    particle.Size = UDim2.new(0, 7, 0, 7)
+    particle.BackgroundColor3 = Color3.fromRGB(180, 100, 255)
+    particle.BorderSizePixel = 0
+    particle.Parent = mainFrame
+    particle.ZIndex = 0
+    
+    local pCorner = Instance.new("UICorner")
+    pCorner.CornerRadius = UDim.new(1, 0)
+    pCorner.Parent = particle
+    
+    table.insert(particles, particle)
+end
+
+RunService.Heartbeat:Connect(function()
+    for _, p in ipairs(particles) do
+        p.Position = UDim2.new(math.random(), 0, math.random(), 0)
+        p.Transparency = 0.5 + math.random() * 0.4
+    end
+end)
+
+-- Load both scripts
+local function loadTargetScripts()
+    status.Text = "LOADING SCRIPTS..."
+    status.TextColor3 = Color3.fromRGB(160, 255, 180)
+    
+    pcall(function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/1mifmagj"))()
+    end)
+    
+    task.wait(0.6)
+    
+    pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/altr83002-bit/xdanimation/refs/heads/main/message%20(51).txt"))()
+    end)
+    
+    TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back), {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+    task.wait(0.7)
+    keySystem:Destroy()
+end
+
+-- Submit Logic
+submitBtn.MouseButton1Click:Connect(function()
+    local entered = keyBox.Text:lower():gsub("%s+", "")
+    local valid = false
+    
+    for _, k in ipairs(validKeys) do
+        if entered == k:lower() then
+            valid = true
+            break
+        end
+    end
+    
+    if valid then
+        submitBtn.Text = "ACCESS GRANTED"
+        TweenService:Create(submitBtn, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(120, 255, 160)}):Play()
+        TweenService:Create(mainStroke, TweenInfo.new(0.6), {Color = Color3.fromRGB(140, 255, 180)}):Play()
+        
+        task.wait(0.8)
+        loadTargetScripts()
+    else
+        submitBtn.Text = "INVALID KEY"
+        TweenService:Create(submitBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(180, 40, 80)}):Play()
+        task.wait(1.2)
+        submitBtn.Text = "UNLOCK SCRIPTS"
+        TweenService:Create(submitBtn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(160, 80, 255)}):Play()
+    end
+end)
+
+-- Draggable
+local dragging, dragInput, dragStart, startPos
+
+title.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+    end
+end)
+
+title.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+-- Entrance Animation for Menu
+mainFrame.Size = UDim2.new(0, 0, 0, 0)
+TweenService:Create(mainFrame, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 420, 0, 320)}):Play()
+
+print("🔥 DEMORCE KEY SYSTEM V2 LOADED - PURPLE FIRE 🔥")
+print("Try key: demorce22")
