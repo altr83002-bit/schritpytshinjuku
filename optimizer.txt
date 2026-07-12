@@ -1,0 +1,643 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local playerName = LocalPlayer.Name
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local startTime = tick()
+
+-- ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Name = "EMORCE_FPS_BOOSTER"
+ScreenGui.ResetOnSpawn = false
+
+-- Floating Widget (draggable Playtime + FPS)
+local widget = Instance.new("Frame")
+widget.Name = "FloatingWidget"
+widget.AnchorPoint = Vector2.new(0, 0)
+widget.Position = UDim2.new(0.5, -100, 0.1, 0)
+widget.Size = UDim2.new(0, 280, 0, 50)
+widget.BackgroundColor3 = Color3.fromRGB(26, 27, 36)
+widget.BorderSizePixel = 0
+widget.Parent = ScreenGui
+
+local widgetCorner = Instance.new("UICorner")
+widgetCorner.CornerRadius = UDim.new(0, 8)
+widgetCorner.Parent = widget
+
+local widgetStroke = Instance.new("UIStroke")
+widgetStroke.Color = Color3.fromRGB(154, 154, 154)
+widgetStroke.Thickness = 1.5
+widgetStroke.Parent = widget
+
+-- Rainbow Playtime Text
+local playtimeText = Instance.new("TextLabel")
+playtimeText.Name = "PlaytimeText"
+playtimeText.Size = UDim2.new(0.65, 0, 1, 0)
+playtimeText.Position = UDim2.new(0, 10, 0, 0)
+playtimeText.BackgroundTransparency = 1
+playtimeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+playtimeText.Text = "PLAYTIME: 00:00"
+playtimeText.TextXAlignment = Enum.TextXAlignment.Left
+playtimeText.TextSize = 18
+playtimeText.Font = Enum.Font.SourceSansBold
+playtimeText.Parent = widget
+
+-- FPS Text
+local fpsText = Instance.new("TextLabel")
+fpsText.Name = "FPSText"
+fpsText.Size = UDim2.new(0.35, 0, 1, 0)
+fpsText.Position = UDim2.new(0.65, 0, 0, 0)
+fpsText.BackgroundTransparency = 1
+fpsText.TextColor3 = Color3.fromRGB(0, 255, 100)
+fpsText.Text = "FPS: 0"
+fpsText.TextXAlignment = Enum.TextXAlignment.Right
+fpsText.TextSize = 14
+fpsText.Font = Enum.Font.SourceSansBold
+fpsText.Parent = widget
+
+-- Drag for Floating Widget
+local function dragWidget(frame)
+	local dragToggle, dragStart, startPos
+	frame.InputBegan:Connect(function(input)
+		if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+			dragToggle = true
+			dragStart = input.Position
+			startPos = frame.Position
+		end
+	end)
+	frame.InputChanged:Connect(function(input)
+		if dragToggle and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local Delta = input.Position - dragStart
+			frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
+		end
+	end)
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragToggle = false
+		end
+	end)
+end
+dragWidget(widget)
+
+-- FPS + Playtime logic
+local fps = 0
+local frameCount = 0
+local lastFPSUpdate = tick()
+local hue = 0
+
+RunService.RenderStepped:Connect(function()
+	local elapsed = math.floor(tick() - startTime)
+	playtimeText.Text = string.format("PLAYTIME: %02d:%02d", math.floor(elapsed/60), elapsed % 60)
+	hue = (hue + 0.008) % 1
+	playtimeText.TextColor3 = Color3.fromHSV(hue, 1, 1)
+	frameCount = frameCount + 1
+	if tick() - lastFPSUpdate >= 0.5 then
+		fps = math.floor(frameCount / (tick() - lastFPSUpdate))
+		frameCount = 0
+		lastFPSUpdate = tick()
+	end
+	fpsText.Text = "FPS: " .. fps
+end)
+
+-- Main GUI
+local mainbg = Instance.new("Frame")
+mainbg.Name = "mainbg"
+mainbg.AnchorPoint = Vector2.new(0.5, 0.5)
+mainbg.Position = UDim2.new(0.5, 0, 0.5, 0)
+mainbg.Size = UDim2.new(0, 517, 0, 377)
+mainbg.BackgroundColor3 = Color3.fromRGB(26, 27, 36)
+mainbg.BorderSizePixel = 0
+mainbg.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 6)
+UICorner.Parent = mainbg
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(154, 154, 154)
+UIStroke.Thickness = 1.5
+UIStroke.Parent = mainbg
+
+-- Close Button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Name = "CloseBtn"
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.TextSize = 18
+closeBtn.Font = Enum.Font.SourceSansBold
+closeBtn.Parent = mainbg
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 6)
+closeCorner.Parent = closeBtn
+
+-- X_X Widget
+local xWidget = Instance.new("Frame")
+xWidget.Name = "XWidget"
+xWidget.Size = UDim2.new(0, 60, 0, 40)
+xWidget.Position = UDim2.new(0.1, 0, 0.1, 0)
+xWidget.BackgroundColor3 = Color3.fromRGB(26, 27, 36)
+xWidget.BorderSizePixel = 0
+xWidget.Visible = false
+xWidget.Parent = ScreenGui
+
+local xWidgetCorner = Instance.new("UICorner")
+xWidgetCorner.CornerRadius = UDim.new(0, 8)
+xWidgetCorner.Parent = xWidget
+
+local xWidgetStroke = Instance.new("UIStroke")
+xWidgetStroke.Color = Color3.fromRGB(154, 154, 154)
+xWidgetStroke.Thickness = 1.5
+xWidgetStroke.Parent = xWidget
+
+local xText = Instance.new("TextLabel")
+xText.Size = UDim2.new(1, 0, 1, 0)
+xText.BackgroundTransparency = 1
+xText.Text = "X_X"
+xText.TextColor3 = Color3.fromRGB(255, 80, 80)
+xText.TextSize = 22
+xText.Font = Enum.Font.SourceSansBold
+xText.Parent = xWidget
+
+dragWidget(xWidget)
+
+-- Minimize / Restore
+closeBtn.MouseButton1Click:Connect(function()
+	mainbg.Visible = false
+	xWidget.Visible = true
+end)
+
+xWidget.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		mainbg.Visible = true
+		xWidget.Visible = false
+	end
+end)
+
+-- Header
+local Header = Instance.new("TextLabel")
+Header.Text = "EMORCE FPS BOOSTER"
+Header.Size = UDim2.new(0, 280, 0, 25)
+Header.Position = UDim2.new(0.025, 0, 0.03, 0)
+Header.BackgroundTransparency = 1
+Header.TextColor3 = Color3.fromRGB(255, 255, 255)
+Header.TextXAlignment = Enum.TextXAlignment.Left
+Header.TextSize = 17
+Header.Font = Enum.Font.SourceSansBold
+Header.Parent = mainbg
+
+-- Tabs Container
+local dfgsgdsf = Instance.new("Frame")
+dfgsgdsf.Name = "TabsContainer"
+dfgsgdsf.BackgroundTransparency = 1
+dfgsgdsf.Position = UDim2.new(0.5, 0, 0.14, 0)
+dfgsgdsf.Size = UDim2.new(0, 489, 0, 24)
+dfgsgdsf.AnchorPoint = Vector2.new(0.5, 0.5)
+dfgsgdsf.Parent = mainbg
+
+local UIListLayoutTabs = Instance.new("UIListLayout")
+UIListLayoutTabs.FillDirection = Enum.FillDirection.Horizontal
+UIListLayoutTabs.Padding = UDim.new(0.01, 0)
+UIListLayoutTabs.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayoutTabs.Parent = dfgsgdsf
+
+-- Optimizer Tab
+local OptimizerTabBtn = Instance.new("TextButton")
+OptimizerTabBtn.Name = "OptimizerTab"
+OptimizerTabBtn.Size = UDim2.new(0, 120, 0, 24)
+OptimizerTabBtn.BackgroundColor3 = Color3.fromRGB(104, 123, 165)
+OptimizerTabBtn.BorderSizePixel = 0
+OptimizerTabBtn.Text = "OPTIMIZER"
+OptimizerTabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+OptimizerTabBtn.TextScaled = true
+OptimizerTabBtn.Font = Enum.Font.SourceSansBold
+OptimizerTabBtn.Parent = dfgsgdsf
+
+local UICornerOpt = Instance.new("UICorner")
+UICornerOpt.CornerRadius = UDim.new(0, 6)
+UICornerOpt.Parent = OptimizerTabBtn
+
+local UIStrokeOpt = Instance.new("UIStroke")
+UIStrokeOpt.Color = Color3.fromRGB(154, 154, 154)
+UIStrokeOpt.Parent = OptimizerTabBtn
+
+-- Settings Tab
+local SettingsTabBtn = Instance.new("TextButton")
+SettingsTabBtn.Name = "SettingsTab"
+SettingsTabBtn.Size = UDim2.new(0, 120, 0, 24)
+SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+SettingsTabBtn.BorderSizePixel = 0
+SettingsTabBtn.Text = "SETTINGS"
+SettingsTabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SettingsTabBtn.TextScaled = true
+SettingsTabBtn.Font = Enum.Font.SourceSansBold
+SettingsTabBtn.Parent = dfgsgdsf
+
+local UICornerSet = Instance.new("UICorner")
+UICornerSet.CornerRadius = UDim.new(0, 6)
+UICornerSet.Parent = SettingsTabBtn
+
+local UIStrokeSet = Instance.new("UIStroke")
+UIStrokeSet.Color = Color3.fromRGB(154, 154, 154)
+UIStrokeSet.Parent = SettingsTabBtn
+
+-- Cleaner Tab
+local CleanerTabBtn = Instance.new("TextButton")
+CleanerTabBtn.Name = "CleanerTab"
+CleanerTabBtn.Size = UDim2.new(0, 120, 0, 24)
+CleanerTabBtn.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+CleanerTabBtn.BorderSizePixel = 0
+CleanerTabBtn.Text = "CLEANER"
+CleanerTabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CleanerTabBtn.TextScaled = true
+CleanerTabBtn.Font = Enum.Font.SourceSansBold
+CleanerTabBtn.Parent = dfgsgdsf
+
+local UICornerClean = Instance.new("UICorner")
+UICornerClean.CornerRadius = UDim.new(0, 6)
+UICornerClean.Parent = CleanerTabBtn
+
+local UIStrokeClean = Instance.new("UIStroke")
+UIStrokeClean.Color = Color3.fromRGB(154, 154, 154)
+UIStrokeClean.Parent = CleanerTabBtn
+
+-- Optimizer Frame
+local optimizerFrame = Instance.new("ScrollingFrame")
+optimizerFrame.Name = "OptimizerFrame"
+optimizerFrame.Size = UDim2.new(0, 489, 0, 286)
+optimizerFrame.Position = UDim2.new(0.5, 0, 0.59, 0)
+optimizerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+optimizerFrame.BackgroundTransparency = 1
+optimizerFrame.BorderSizePixel = 0
+optimizerFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+optimizerFrame.CanvasSize = UDim2.new(0,0,0,0)
+optimizerFrame.ScrollBarThickness = 6
+optimizerFrame.Parent = mainbg
+
+local UIListLayoutOpt = Instance.new("UIListLayout")
+UIListLayoutOpt.Padding = UDim.new(0.008, 0)
+UIListLayoutOpt.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayoutOpt.Parent = optimizerFrame
+
+-- Settings Frame
+local settingsFrame = Instance.new("ScrollingFrame")
+settingsFrame.Name = "SettingsFrame"
+settingsFrame.Size = UDim2.new(0, 489, 0, 286)
+settingsFrame.Position = UDim2.new(0.5, 0, 0.59, 0)
+settingsFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+settingsFrame.BackgroundTransparency = 1
+settingsFrame.BorderSizePixel = 0
+settingsFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+settingsFrame.CanvasSize = UDim2.new(0,0,0,0)
+settingsFrame.Visible = false
+settingsFrame.ScrollBarThickness = 6
+settingsFrame.Parent = mainbg
+
+local UIListLayoutSet = Instance.new("UIListLayout")
+UIListLayoutSet.Padding = UDim.new(0.008, 0)
+UIListLayoutSet.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayoutSet.Parent = settingsFrame
+
+-- Cleaner Frame
+local cleanerFrame = Instance.new("ScrollingFrame")
+cleanerFrame.Name = "CleanerFrame"
+cleanerFrame.Size = UDim2.new(0, 489, 0, 286)
+cleanerFrame.Position = UDim2.new(0.5, 0, 0.59, 0)
+cleanerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+cleanerFrame.BackgroundTransparency = 1
+cleanerFrame.BorderSizePixel = 0
+cleanerFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+cleanerFrame.CanvasSize = UDim2.new(0,0,0,0)
+cleanerFrame.Visible = false
+cleanerFrame.ScrollBarThickness = 6
+cleanerFrame.Parent = mainbg
+
+local UIListLayoutClean = Instance.new("UIListLayout")
+UIListLayoutClean.Padding = UDim.new(0.008, 0)
+UIListLayoutClean.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayoutClean.Parent = cleanerFrame
+
+-- Tab Switching
+local function switchTab(tab)
+	OptimizerTabBtn.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+	SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+	CleanerTabBtn.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+	
+	if tab == "Optimizer" then
+		OptimizerTabBtn.BackgroundColor3 = Color3.fromRGB(104, 123, 165)
+		optimizerFrame.Visible = true
+		settingsFrame.Visible = false
+		cleanerFrame.Visible = false
+	elseif tab == "Settings" then
+		SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(104, 123, 165)
+		optimizerFrame.Visible = false
+		settingsFrame.Visible = true
+		cleanerFrame.Visible = false
+	elseif tab == "Cleaner" then
+		CleanerTabBtn.BackgroundColor3 = Color3.fromRGB(104, 123, 165)
+		optimizerFrame.Visible = false
+		settingsFrame.Visible = false
+		cleanerFrame.Visible = true
+	end
+end
+
+OptimizerTabBtn.MouseButton1Click:Connect(function() switchTab("Optimizer") end)
+SettingsTabBtn.MouseButton1Click:Connect(function() switchTab("Settings") end)
+CleanerTabBtn.MouseButton1Click:Connect(function() switchTab("Cleaner") end)
+
+-- Functions
+local function applyMaxBoost()
+	local lighting = game:GetService("Lighting")
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("BasePart") or v:IsA("MeshPart") then
+			v.Material = Enum.Material.SmoothPlastic
+			if v:IsA("MeshPart") then v.RenderFidelity = Enum.RenderFidelity.Performance end
+		end
+		if v:IsA("Decal") or v:IsA("Texture") then v.Transparency = 1 end
+		if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") then v.Enabled = false end
+	end
+	lighting.GlobalShadows = false
+	lighting.FogEnd = 1000000
+	lighting.Brightness = 1
+	lighting.ClockTime = 12
+	lighting.EnvironmentDiffuseScale = 0
+	lighting.EnvironmentSpecularScale = 0
+	for _, effect in ipairs(lighting:GetDescendants()) do
+		if effect:IsA("PostEffect") or effect:IsA("BloomEffect") or effect:IsA("BlurEffect") or effect:IsA("SunRaysEffect") or effect:IsA("Atmosphere") or effect:IsA("ColorCorrectionEffect") then
+			effect.Enabled = false
+		end
+	end
+	settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+	setfpscap(999)
+end
+
+local function cleanWipeMap()
+	-- Aggressive but safe clean wipe - targets decorative/non-essential objects
+	local protected = {"Terrain", "Camera", "Baseplate", LocalPlayer.Character and LocalPlayer.Character.Name or ""}
+	
+	for _, obj in ipairs(workspace:GetChildren()) do
+		if obj:IsA("Model") or obj:IsA("Folder") then
+			local shouldKeep = false
+			for _, p in ipairs(protected) do
+				if obj.Name:find(p) or obj:FindFirstChildWhichIsA("Humanoid") then
+					shouldKeep = true
+					break
+				end
+			end
+			if not shouldKeep then
+				for _, descendant in ipairs(obj:GetDescendants()) do
+					if descendant:IsA("BasePart") or descendant:IsA("MeshPart") or descendant:IsA("Decal") or descendant:IsA("Texture") then
+						descendant:Destroy()
+					end
+				end
+				obj:Destroy()
+			end
+		elseif obj:IsA("BasePart") or obj:IsA("MeshPart") then
+			if not table.find(protected, obj.Name) then
+				obj:Destroy()
+			end
+		end
+	end
+	
+	-- Extra cleanup
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") or v:IsA("Decal") or v:IsA("Texture") then
+			v:Destroy()
+		end
+		if v:IsA("BasePart") and v.Transparency < 1 and v.Name ~= "Terrain" and v.Name ~= "Baseplate" then
+			v.Transparency = 1
+		end
+	end
+	
+	applyMaxBoost() -- Re-apply core boost after wipe
+end
+
+-- Optimizer UI
+local maxBoostBtn = Instance.new("TextButton")
+maxBoostBtn.Size = UDim2.new(1, -20, 0, 52)
+maxBoostBtn.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+maxBoostBtn.Text = "🚀 APPLY MAX FPS BOOST"
+maxBoostBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+maxBoostBtn.TextScaled = true
+maxBoostBtn.Font = Enum.Font.SourceSansBold
+maxBoostBtn.Parent = optimizerFrame
+
+local cornerBtn1 = Instance.new("UICorner")
+cornerBtn1.CornerRadius = UDim.new(0,6)
+cornerBtn1.Parent = maxBoostBtn
+local strokeBtn1 = Instance.new("UIStroke")
+strokeBtn1.Color = Color3.fromRGB(154, 154, 154)
+strokeBtn1.Parent = maxBoostBtn
+
+maxBoostBtn.MouseButton1Click:Connect(applyMaxBoost)
+
+local removeMatToggle = Instance.new("TextButton")
+removeMatToggle.Size = UDim2.new(1, -20, 0, 48)
+removeMatToggle.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+removeMatToggle.Text = "REMOVE MATERIALS (SMOOTH PLASTIC) ✓"
+removeMatToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+removeMatToggle.TextScaled = true
+removeMatToggle.Font = Enum.Font.SourceSansBold
+removeMatToggle.Parent = optimizerFrame
+
+local cornerMat = Instance.new("UICorner")
+cornerMat.CornerRadius = UDim.new(0,6)
+cornerMat.Parent = removeMatToggle
+local strokeMat = Instance.new("UIStroke")
+strokeMat.Color = Color3.fromRGB(154, 154, 154)
+strokeMat.Parent = removeMatToggle
+
+local materialsEnabled = true
+removeMatToggle.MouseButton1Click:Connect(function()
+	materialsEnabled = not materialsEnabled
+	removeMatToggle.Text = "REMOVE MATERIALS (SMOOTH PLASTIC) " .. (materialsEnabled and "✓" or "✗")
+	if materialsEnabled then
+		for _, v in ipairs(workspace:GetDescendants()) do
+			if v:IsA("BasePart") or v:IsA("MeshPart") then
+				v.Material = Enum.Material.SmoothPlastic
+			end
+		end
+	end
+end)
+
+-- FPS Limit
+local fpsSliderFrame = Instance.new("Frame")
+fpsSliderFrame.Size = UDim2.new(1, -20, 0, 65)
+fpsSliderFrame.BackgroundTransparency = 1
+fpsSliderFrame.Parent = optimizerFrame
+
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Size = UDim2.new(1, 0, 0.4, 0)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.Text = "FPS LIMIT"
+fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+fpsLabel.TextScaled = true
+fpsLabel.Font = Enum.Font.SourceSansBold
+fpsLabel.Parent = fpsSliderFrame
+
+local fpsSlider = Instance.new("TextButton")
+fpsSlider.Size = UDim2.new(1, 0, 0.6, 0)
+fpsSlider.Position = UDim2.new(0, 0, 0.4, 0)
+fpsSlider.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+fpsSlider.Text = "999 (UNLIMITED)"
+fpsSlider.TextColor3 = Color3.fromRGB(255, 255, 255)
+fpsSlider.TextScaled = true
+fpsSlider.Font = Enum.Font.SourceSansBold
+fpsSlider.Parent = fpsSliderFrame
+
+local cornerSlider = Instance.new("UICorner")
+cornerSlider.CornerRadius = UDim.new(0,6)
+cornerSlider.Parent = fpsSlider
+local strokeSlider = Instance.new("UIStroke")
+strokeSlider.Color = Color3.fromRGB(154, 154, 154)
+strokeSlider.Parent = fpsSlider
+
+local currentFpsCap = 999
+fpsSlider.MouseButton1Click:Connect(function()
+	currentFpsCap = (currentFpsCap == 999 and 144) or (currentFpsCap == 144 and 240) or 999
+	fpsSlider.Text = currentFpsCap == 999 and "999 (UNLIMITED)" or tostring(currentFpsCap)
+	setfpscap(currentFpsCap)
+end)
+
+-- Destroy Particles
+local destroyParticlesBtn = Instance.new("TextButton")
+destroyParticlesBtn.Size = UDim2.new(1, -20, 0, 52)
+destroyParticlesBtn.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+destroyParticlesBtn.Text = "DESTROY ALL PARTICLES / TRAILS / BEAMS"
+destroyParticlesBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+destroyParticlesBtn.TextScaled = true
+destroyParticlesBtn.Font = Enum.Font.SourceSansBold
+destroyParticlesBtn.Parent = optimizerFrame
+
+local cornerP = Instance.new("UICorner")
+cornerP.CornerRadius = UDim.new(0,6)
+cornerP.Parent = destroyParticlesBtn
+local strokeP = Instance.new("UIStroke")
+strokeP.Color = Color3.fromRGB(154, 154, 154)
+strokeP.Parent = destroyParticlesBtn
+
+destroyParticlesBtn.MouseButton1Click:Connect(function()
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") then
+			v:Destroy()
+		end
+	end
+end)
+
+-- Post Effects
+local postToggleBtn = Instance.new("TextButton")
+postToggleBtn.Size = UDim2.new(1, -20, 0, 48)
+postToggleBtn.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+postToggleBtn.Text = "DISABLE POST EFFECTS ✓"
+postToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+postToggleBtn.TextScaled = true
+postToggleBtn.Font = Enum.Font.SourceSansBold
+postToggleBtn.Parent = optimizerFrame
+
+local cornerPost = Instance.new("UICorner")
+cornerPost.CornerRadius = UDim.new(0,6)
+cornerPost.Parent = postToggleBtn
+local strokePost = Instance.new("UIStroke")
+strokePost.Color = Color3.fromRGB(154, 154, 154)
+strokePost.Parent = postToggleBtn
+
+local postEnabled = true
+postToggleBtn.MouseButton1Click:Connect(function()
+	postEnabled = not postEnabled
+	postToggleBtn.Text = "DISABLE POST EFFECTS " .. (postEnabled and "✓" or "✗")
+	for _, v in ipairs(game:GetService("Lighting"):GetDescendants()) do
+		if v:IsA("PostEffect") then
+			v.Enabled = not postEnabled
+		end
+	end
+end)
+
+-- Cleaner UI
+local cleanWipeBtn = Instance.new("TextButton")
+cleanWipeBtn.Size = UDim2.new(1, -20, 0, 60)
+cleanWipeBtn.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+cleanWipeBtn.Text = "☢️ CLEAN WIPE MAP (Remove Decorations)"
+cleanWipeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+cleanWipeBtn.TextScaled = true
+cleanWipeBtn.Font = Enum.Font.SourceSansBold
+cleanWipeBtn.Parent = cleanerFrame
+
+local cornerClean1 = Instance.new("UICorner")
+cornerClean1.CornerRadius = UDim.new(0,6)
+cornerClean1.Parent = cleanWipeBtn
+local strokeClean1 = Instance.new("UIStroke")
+strokeClean1.Color = Color3.fromRGB(154, 154, 154)
+strokeClean1.Parent = cleanWipeBtn
+
+cleanWipeBtn.MouseButton1Click:Connect(cleanWipeMap)
+
+local fps60Btn = Instance.new("TextButton")
+fps60Btn.Size = UDim2.new(1, -20, 0, 52)
+fps60Btn.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+fps60Btn.Text = "🔒 LOCK TO 60 FPS"
+fps60Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+fps60Btn.TextScaled = true
+fps60Btn.Font = Enum.Font.SourceSansBold
+fps60Btn.Parent = cleanerFrame
+
+local corner60 = Instance.new("UICorner")
+corner60.CornerRadius = UDim.new(0,6)
+corner60.Parent = fps60Btn
+local stroke60 = Instance.new("UIStroke")
+stroke60.Color = Color3.fromRGB(154, 154, 154)
+stroke60.Parent = fps60Btn
+
+fps60Btn.MouseButton1Click:Connect(function()
+	setfpscap(60)
+end)
+
+-- Settings
+local themeLabel = Instance.new("TextLabel")
+themeLabel.Size = UDim2.new(1, -20, 0, 35)
+themeLabel.BackgroundTransparency = 1
+themeLabel.Text = "THEME"
+themeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+themeLabel.TextScaled = true
+themeLabel.Font = Enum.Font.SourceSansBold
+themeLabel.Parent = settingsFrame
+
+local themesList = {"Dark", "Darker", "Light", "Aqua", "Amethyst", "Rose"}
+for _, themeName in ipairs(themesList) do
+	local themeBtn = Instance.new("TextButton")
+	themeBtn.Size = UDim2.new(1, -20, 0, 42)
+	themeBtn.BackgroundColor3 = Color3.fromRGB(90, 99, 109)
+	themeBtn.Text = themeName
+	themeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	themeBtn.TextScaled = true
+	themeBtn.Font = Enum.Font.SourceSansBold
+	themeBtn.Parent = settingsFrame
+	
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0,6)
+	c.Parent = themeBtn
+	local s = Instance.new("UIStroke")
+	s.Color = Color3.fromRGB(154, 154, 154)
+	s.Parent = themeBtn
+	
+	themeBtn.MouseButton1Click:Connect(function()
+		if themeName == "Light" then
+			mainbg.BackgroundColor3 = Color3.fromRGB(240,240,240)
+		else
+			mainbg.BackgroundColor3 = Color3.fromRGB(26,27,36)
+		end
+	end)
+end
+
+-- Drag Main Window
+dragWidget(mainbg)
+
+-- Initial
+applyMaxBoost()
+
+print("Emorce FPS Booster Loaded - Fixed Dragging + Minimize + Custom UI + Cleaner Tab Ready for " .. playerName)
